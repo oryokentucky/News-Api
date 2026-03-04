@@ -1,0 +1,107 @@
+scalar Date @scalar(class: "Nuwave\\Lighthouse\\Schema\\Types\\Scalars\\Date")
+scalar DateTime @scalar(class: "Nuwave\\Lighthouse\\Schema\\Types\\Scalars\\DateTime")
+scalar Upload @scalar(class: "Nuwave\\Lighthouse\\Schema\\Types\\Scalars\\Upload")
+
+type User{
+  user_id: ID! @rename(attribute:"id")
+  user_fullname: String!
+  email: String!
+  user_mobile: String!
+}
+
+input Lang{
+    en: String
+    cn: String
+    bm: String
+}
+
+type LangResponse{
+    en: String
+    cn: String
+    bm: String
+}
+
+
+type Post {
+    id: ID!
+    post_title: String!
+    post_description: String!
+    post_slug: String!
+    post_status: String!
+    post_publish_date: Date!
+    language: LangResponse
+}
+
+type LoginResponse{
+  token: String!
+  user: User!
+}
+
+type LogoutResponse{
+    success: Boolean!
+    status: String!
+    message: String !
+}
+
+type ResetPasswordResponse{
+  status: String!
+}
+
+type ForgotPasswordResponse{
+  encryption:String!
+}
+
+type Query{
+  me:User @auth @guard
+  adminPosts: [Post!]! @guard @all(model: "App\\Models\\Post")
+  postpublishedlisting(id:ID! @eq):Post  @guard @find
+}
+
+
+type Mutation{
+
+  login(
+    user_email: String!
+    password: String!
+  ): LoginResponse!
+
+  logout: LogoutResponse @guard
+
+   register(
+    user_fullname: String!
+    user_email: String!
+    user_mobile: String!
+    password: String!
+   ):String
+
+  forgotPassword(
+    user_email: String!
+    ): ForgotPasswordResponse
+
+   resetPassword(
+    encryption: String!
+    user_id: ID!
+    password: String!
+   ):ResetPasswordResponse
+
+    createPost(
+        post_title: String
+        post_description: String!
+        post_status: String!
+        language: Lang
+    ): Post @guard @create(model: "App\\Models\\Post")
+
+    updatePost(
+        id: ID!
+        post_title: String
+        post_description: String
+        post_status: String
+        language:Lang
+    ): Post @guard @update(model: "App\\Models\\Post")
+
+     deletePost(
+        id: ID! @eq
+    ): Post @guard @delete(model: "App\\Models\\Post")
+
+    uploadImage(file:Upload!): String!  @guard
+}
