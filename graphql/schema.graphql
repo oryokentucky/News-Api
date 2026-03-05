@@ -21,7 +21,6 @@ type LangResponse{
     bm: String
 }
 
-
 type Post {
     id: ID!
     post_title: String!
@@ -55,6 +54,7 @@ type Query{
   me:User @auth @guard
   adminPosts: [Post!]! @guard @all(model: "App\\Models\\Post")
   postpublishedlisting(id:ID! @eq):Post  @guard @find
+  getImageUrl:[String!] @guard
 }
 
 
