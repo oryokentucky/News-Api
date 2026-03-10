@@ -1,9 +1,8 @@
 <?php declare(strict_types=1);
 
+
 namespace App\GraphQL\Mutations;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
-
 
 final readonly class UploadImage
 {
@@ -14,16 +13,18 @@ final readonly class UploadImage
     {
         $user = Auth::user();
         if (!$user) {
-    throw new \Exception("User not found.");
-}
+            throw new \Exception("User not found.");
+        }
+
         $file = $args['file'];
-        $originalname = $file->getClientOriginalName();
-        $filename=time().'_'.$originalname;
 
-        $folderPath= 'images/'.str_replace('','_',$user->user_fullname);
+        $media =$user->addMedia($file)
+                ->usingFileName(time().'_'.$file->getClientOriginalName())
+                ->toMediaCollection('avatars','public');
 
-        $path=$file->storeAS($folderPath,$filename,'public');
+        return $media->getFullUrl();
 
-        return Storage::url($path);
-    }
+
+}
+
 }

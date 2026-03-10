@@ -3,7 +3,7 @@
 namespace App\GraphQL\Queries;
 
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 final readonly class GetImageUrl
 {
@@ -15,14 +15,15 @@ final readonly class GetImageUrl
         if(!$user){
             return null;
         }
-    $directory ='images/'.str_replace('','_',$user->user_fullname);
 
-    $files = Storage::disk('public')->files($directory);
+        $mediaItems = $user->getMedia('avatars');
 
-    return array_map(function($path){
-        return Storage::url($path);
-    },$files);
-
+        return $mediaItems->map(function(Media $media){
+            return[
+                'file_name' => $media->file_name,
+                'id' => $media->id,
+            ];
+        })->toArray();
 
     }
 }

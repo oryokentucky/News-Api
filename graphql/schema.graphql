@@ -8,7 +8,10 @@ type User{
   email: String!
   user_mobile: String!
 }
-
+type GetImageInfo{
+    id: ID!
+    file_name: String!
+}
 input Lang{
     en: String
     cn: String
@@ -29,6 +32,7 @@ type Post {
     post_status: String!
     post_publish_date: Date!
     language: LangResponse
+    post_image_url: String!
 }
 
 type LoginResponse{
@@ -54,7 +58,7 @@ type Query{
   me:User @auth @guard
   adminPosts: [Post!]! @guard @all(model: "App\\Models\\Post")
   postpublishedlisting(id:ID! @eq):Post  @guard @find
-  getImageUrl:[String!] @guard
+  getImageUrl:[GetImageInfo!]! @guard
 }
 
 
@@ -89,7 +93,8 @@ type Mutation{
         post_description: String!
         post_status: String!
         language: Lang
-    ): Post @guard @create(model: "App\\Models\\Post")
+        Media:Upload!
+    ): [Post!]! @guard
 
     updatePost(
         id: ID!
@@ -97,11 +102,14 @@ type Mutation{
         post_description: String
         post_status: String
         language:Lang
-    ): Post @guard @update(model: "App\\Models\\Post")
+        Media:Upload!
+    ): Post! @guard
 
      deletePost(
         id: ID! @eq
     ): Post @guard @delete(model: "App\\Models\\Post")
 
     uploadImage(file:Upload!): String!  @guard
+
+    deleteImage(id:ID! @eq):Boolean! @guard
 }
