@@ -7,9 +7,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
+use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\HasMedia;
 
-class Post extends Model
+class Post extends Model implements HasMedia
 {
+     use InteractsWithMedia;
      use SoftDeletes;
      use HasFactory;
 
@@ -21,15 +24,18 @@ class Post extends Model
         'post_slug',
         'post_status',
         'post_publish_date',
-        'is_deleted',
         'language',
     ];
 
     protected $casts = [
         'post_publish_date' => 'date',
-        'is_deleted' => 'boolean',
         'language' => 'array'
     ];
+    public function getPostImageUrlAttribute(): string
+    {
+
+        return $this->getFirstMediaUrl('post_images') ?: 'https://via.placeholder.com/500';
+    }
 
    protected static function boot()
     {
@@ -54,7 +60,14 @@ class Post extends Model
 
         // When updating
         static::updating(function ($post) {
+            $post->clearMediaCollection('post_images');
             $post->post_publish_date = now();
         });
+        //delete media
+        static::deleting(function ($post) {
+        // This tells Spatie to wipe the files even if
+        // the Post record is just being soft-deleted.
+        $post->clearMediaCollection('post_images');
+    });
     }
 }
