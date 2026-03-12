@@ -112,4 +112,8 @@ type Mutation{
     uploadImage(file:Upload!): String!  @guard
 
     deleteImage(id:ID! @eq):Boolean! @guard
+
+    AddRole(id:ID! @eq, role:String!):User @guard @field(resolver: "App\\GraphQL\\Mutations\\AddRole@resolve")
+
+    RemoveRole(id:ID! @eq, role:String!):User @guard @field(resolver: "App\\GraphQL\\Mutations\\RemoveRole@resolve")
 }
